@@ -76,7 +76,7 @@
 
 <script setup>
 import { ref, computed, nextTick, onMounted } from "vue";
-import { saveResult, saveResultRemote } from "../utils/results";
+import { saveResultRemote } from "../utils/results";
 import { useAuth } from '../composables/useAuth';
 import TestConfigBar from "../components/TestConfigBar.vue";
 
@@ -297,24 +297,21 @@ const finishTest = () => {
   blurInput();
   clearInterval(timerInterval);
   timerInterval = null;
-  // Persist result
   try {
-    const duration = (endTime.value - startTime.value) / 1000;
-    const resultObj = {
-      id: endTime.value,
-      wpm: wpm.value,
-      accuracy: accuracy.value,
-      mode: mode.value,
-      testValue: testValue.value,
-      timestamp: new Date().toISOString(),
-      correct: correctChars.value,
-      incorrect: incorrectChars.value,
-      totalChars: typed.value.length,
-      durationSeconds: Math.round(duration * 10) / 10
-    };
-    saveResult(resultObj);
     if (isLoggedIn.value) {
-      // remote persistence (async, no await to keep UI snappy)
+      const duration = (endTime.value - startTime.value) / 1000;
+      const resultObj = {
+        id: endTime.value,
+        wpm: wpm.value,
+        accuracy: accuracy.value,
+        mode: mode.value,
+        testValue: testValue.value,
+        timestamp: new Date().toISOString(),
+        correct: correctChars.value,
+        incorrect: incorrectChars.value,
+        totalChars: typed.value.length,
+        durationSeconds: Math.round(duration * 10) / 10
+      };
       saveResultRemote(resultObj, user.value);
     }
   } catch (e) { /* swallow localStorage errors */ }
@@ -609,5 +606,37 @@ const regenerateParagraph = () => {
 .fade-fast-enter-from,
 .fade-fast-leave-to {
   opacity: 0;
+}
+
+/* Mobile responsiveness (result screen only) */
+@media (max-width: 560px) {
+  .result-screen { padding: 1.55rem 1.25rem; gap: 1.15rem; width: clamp(280px, 88%, 640px); }
+  .result-title { font-size: 1.25rem; }
+  .metric { min-height: 72px; padding: 0.6rem 0.6rem 0.55rem; }
+  .metric-value { font-size: 1.7rem; }
+  .metric-value.small { font-size: 1.05rem; }
+  .detail-row { font-size: 0.8rem; }
+  .action-btn { padding: 0.55rem 0.95rem; font-size: 0.8rem; }
+}
+@media (max-width: 420px) {
+  .result-screen { padding: 1.25rem 0.95rem; gap: 0.95rem; width: clamp(260px, 92%, 480px); }
+  .metric { min-height: 66px; }
+  .metric-value { font-size: 1.55rem; }
+  .metric-value.small { font-size: 0.95rem; }
+  .result-summary { gap: 0.7rem 0.65rem; }
+  .detail-stats { padding: 0.75rem 0.8rem; gap: 0.4rem; }
+  .detail-row { font-size: 0.75rem; }
+  .action-btn { padding: 0.5rem 0.85rem; font-size: 0.75rem; }
+}
+@media (max-width: 380px) {
+  .result-screen { width: clamp(250px, 94%, 420px); }
+}
+@media (max-width: 340px) {
+  .result-screen { padding: 1.05rem 0.75rem; gap: 0.75rem; width: clamp(240px, 95%, 380px); }
+  .metric { min-height: 60px; }
+  .metric-value { font-size: 1.42rem; }
+  .metric-value.small { font-size: 0.9rem; }
+  .detail-row { font-size: 0.7rem; }
+  .action-btn { padding: 0.45rem 0.75rem; font-size: 0.7rem; }
 }
 </style>

@@ -41,7 +41,7 @@ async function fetchMe() {
 export function useAuth() {
   const user = computed(() => userRef.value);
   const token = computed(() => tokenRef.value);
-  const isLoggedIn = computed(() => !!userRef.value);
+  const isLoggedIn = computed(() => !!userRef.value && !!tokenRef.value);
   const pendingVerification = computed(() => pendingVerificationRef.value);
 
   // Supports login via either username OR email.
@@ -53,6 +53,9 @@ export function useAuth() {
     // Heuristic: if identifier contains '@' treat as email; backend expected to accept either field.
     const body = identifier.includes('@') ? { email: identifier, password } : { username: identifier, password };
     const resp = await api.post('/users/login', body);
+    if (resp.token) {
+      persistToken(resp.token);
+    }
     persistUser(resp.user);
     return resp.user;
   }

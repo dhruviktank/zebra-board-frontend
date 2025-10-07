@@ -1,31 +1,30 @@
-// Simple localStorage-backed results store
-// Schema: { id, wpm, accuracy, mode, testValue, timestamp, correct, incorrect, totalChars, durationSeconds }
-// When user is logged in we also attempt to persist remotely.
-
 import { api } from './api';
 
-const KEY = 'zb_results_v1';
-
-function loadAll() {
-  try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; }
-}
-function saveAll(arr) { localStorage.setItem(KEY, JSON.stringify(arr)); }
-
-export function saveResult(result) {
-  const list = loadAll();
-  list.unshift(result); // most recent first
-  // optional cap
-  if (list.length > 200) list.pop();
-  saveAll(list);
+// Fetch results for a user from server (paginated). Always fresh (no caching).
+export async function fetchUserResults(userId, { take = 100 } = {}) {
+  if (!userId) return [];
+  const params = new URLSearchParams({ userId: String(userId), take: String(take) });
+  const res = await api.get(`/test-results?${params.toString()}`);
+  return Array.isArray(res) ? res : [];
 }
 
-export function getResults() { return loadAll(); }
+// Fetch aggregate stats for a user from server
+export async function fetchUserAggregate(userId) {
+  if (!userId) return { count:0, bestWpm:0, avgWpm:0, avgAccuracy:0 };
+  const params = new URLSearchParams({ userId: String(userId) });
+  const res = await api.get(`/test-results/aggregate/by-user?${params.toString()}`);
+  return res || { count:0, bestWpm:0, avgWpm:0, avgAccuracy:0 };
+}
 
-export function aggregateStats() {
-  const list = loadAll();
-  if (!list.length) return { count:0, bestWpm:0, avgWpm:0, avgAccuracy:0 };
+// Compute aggregate stats from provided list (server results). Accepts optional list param to avoid refetch.
+export function aggregateStatsFrom(list) {
+  if (!list || !list.length) return { count:0, bestWpm:0, avgWpm:0, avgAccuracy:0 };
   let bestWpm = 0, sumWpm = 0, sumAcc = 0;
-  list.forEach(r => { bestWpm = Math.max(bestWpm, r.wpm); sumWpm += r.wpm; sumAcc += r.accuracy; });
+  for (const r of list) {
+    bestWpm = Math.max(bestWpm, r.wpm || 0);
+    sumWpm += r.wpm || 0;
+    sumAcc += r.accuracy || 0;
+  }
   return {
     count: list.length,
     bestWpm,
@@ -34,21 +33,20 @@ export function aggregateStats() {
   };
 }
 
-// Remote save (fire-and-forget). Caller supplies user (optional) so we can attach userId.
 export async function saveResultRemote(result, user) {
+  if (!user?.id) return;
   try {
     const payload = {
-      userId: user?.id,
+      userId: user.id,
       wpm: result.wpm,
       accuracy: result.accuracy,
-      rawWpm: result.wpm, // no separate net/raw right now
+      rawWpm: result.wpm,
       characters: result.totalChars,
       durationSec: result.durationSeconds,
       mode: result.mode
     };
     await api.post('/test-results', payload);
   } catch (e) {
-    // swallow silently; could enqueue for later retry
-    // console.warn('Remote save failed', e);
+    // silently ignore; could enqueue retry strategy here
   }
 }

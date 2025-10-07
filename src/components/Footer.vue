@@ -2,7 +2,7 @@
   <footer class="footer">
     <div class="footer-left">
       <router-link to="/contact" class="link">Contact</router-link>
-      <a href="https://github.com/your-repo" target="_blank" rel="noopener" class="link">
+      <a href="https://github.com/dhruviktank" target="_blank" rel="noopener" class="link">
         GitHub
       </a>
     </div>
@@ -50,5 +50,20 @@
 .version {
   font-size: 0.85rem;
   color: #a5a5a5;
+}
+
+/* Minimal mobile responsiveness */
+@media (max-width: 560px) {
+  .footer { padding: 0.7rem 1rem; }
+  .footer-left, .footer-right { gap: 0.75rem; }
+}
+@media (max-width: 420px) {
+  .footer { flex-direction: column; text-align: center; gap: 0.5rem; }
+  .footer-right { font-size: 0.8rem; }
+}
+@media (max-width: 340px) {
+  .footer { padding: 0.6rem 0.7rem; }
+  .footer-right span, .footer-left .link { font-size: 0.78rem; }
+  .version { font-size: 0.7rem; }
 }
 </style>

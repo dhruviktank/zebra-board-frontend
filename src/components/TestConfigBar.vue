@@ -114,4 +114,23 @@ pushChange();
 .words.hidden {
   display: none;
 }
+
+/* Minimal mobile responsiveness */
+@media (max-width: 560px) {
+  .test-config { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+  .test-config::-webkit-scrollbar { display: none; }
+  .text-button { padding: 0.55rem 0.55rem; font-size: .85rem; }
+  .mode, .time, .words { padding: 0 0.25rem; }
+  .divider { height: 1rem; width: 0.28rem; }
+}
+@media (max-width: 420px) {
+  .text-button { padding: 0.45rem 0.45rem; font-size: .78rem; }
+  .mode, .time, .words { padding: 0 0.2rem; }
+  .divider { height: 0.9rem; }
+}
+@media (max-width: 340px) {
+  .text-button { padding: 0.4rem 0.4rem; font-size: .72rem; }
+  .mode, .time, .words { padding: 0 0.18rem; }
+  .divider { height: 0.85rem; width: 0.25rem; }
+}
 </style>

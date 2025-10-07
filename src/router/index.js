@@ -4,6 +4,7 @@ import Profile from "../views/Profile.vue";
 import Login from "../views/Login.vue";
 import OAuthCallback from "../views/OAuthCallback.vue";
 import VerifyEmail from "../views/VerifyEmail.vue";
+import Contact from "../views/Contact.vue";
 
 const routes = [
   { path: "/", name: "Test", component: Test },
@@ -11,6 +12,7 @@ const routes = [
   { path: "/login", name: "Login", component: Login },
   { path: "/oauth/callback", name: "OAuthCallback", component: OAuthCallback },
   { path: "/verify-email", name: "VerifyEmail", component: VerifyEmail },
+  { path: "/contact", name: "Contact", component: Contact },
 ];
 
 const router = createRouter({
